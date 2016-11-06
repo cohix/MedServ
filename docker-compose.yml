@@ -1,0 +1,36 @@
+version: '2'
+services:
+    nginx:
+        build: ./cohix-nginx/
+        volumes:
+            - /home/torrents:/home/torrents:ro
+        depends_on:
+            - medserv
+        links:
+            - medserv
+        ports:
+            - 80:80
+    medserv:
+        build: ../
+        ports:
+            - "8080:8080"
+        depends_on:
+            - transmission
+        links:
+            - transmission
+        volumes:
+            - /home/torrents:/home/torrents
+        environment:
+            - PORT=8080
+            - ROOT_DIR=/home/torrents
+    transmission:
+        image: linuxserver/transmission
+        volumes:
+            - /home/transmission/config:/config
+            - /home/torrents:/downloads
+        ports:
+            - 9091:9091
+            - 51413:51413
+        environment:
+            - PUID=1001
+            - PGID=1001

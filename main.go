@@ -7,10 +7,10 @@ import (
 	"os"
 
 	"github.com/cohix/generator"
+	"github.com/cohix/transmission"
 )
 
 func main() {
-
 	port := os.Getenv("PORT")
 	if port == "" {
 		log.Fatal("PORT environment variable must be set")
@@ -23,6 +23,16 @@ func main() {
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Serving /")
+		fmt.Fprintf(w, generator.GenerateIndexPageFromRootDir(root))
+	})
+
+	http.HandleFunc("/add", func(w http.ResponseWriter, r *http.Request) {
+		log.Println("Adding torrent...")
+		magnetURL := r.URL.Query().Get("magnet")
+
+		transClient := transmission.NewClient("", "")
+		transClient.StartMagnet(magnetURL)
+
 		fmt.Fprintf(w, generator.GenerateIndexPageFromRootDir(root))
 	})
 
